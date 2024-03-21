@@ -1,8 +1,10 @@
-from src import ModelArguments, TokenizerArguments, run_pt
+from src import *
 
 # for debug usage
 if __name__ == '__main__':
     model_path = '/data/lixubin/models/gpt2'
+    dataset_path = '/data/lixubin/MiraTrainer/test.txt'
     model_args = ModelArguments()
     tokenizer_args = TokenizerArguments()
-    run_pt(model_path,model_args,tokenizer_args)
+    dataset_args = PTDatasetArguments()
+    run_pt(model_path,model_args,tokenizer_args,dataset_path,dataset_args)

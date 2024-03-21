@@ -1,2 +1,2 @@
-from .arguments import ModelArguments, TokenizerArguments
+from .arguments import *
 from .pt import run_pt
