@@ -1,0 +1,7 @@
+# some config files
+.env/
+.vscode/
+__pycache__/
+
+# for test output folder
+output/
