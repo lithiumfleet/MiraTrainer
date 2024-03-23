@@ -22,3 +22,24 @@ class PTDatasetArguments:
             "help": "the label for text chuncks in Dataset."
         }
     )
+    num_procs:int = field(
+        default=4,
+        metadata={
+            "help": "number of processes used in dataset preprocess. default to 4."
+        }
+    )
+    block_size:int = field(
+        default=1024,
+        metadata={
+            "help": "for pt, it means the length of a tokenized text block, \
+                so it is the size of one time input for model. \
+                it will be automatically overwrited to tokenizer.model_max_length. \
+                just in case, we give a default size."
+        }
+    )
+    overwrite_cache:bool = field(
+        default=False,
+        metadata={
+            "help": "whether to use cache."
+        }
+    )
