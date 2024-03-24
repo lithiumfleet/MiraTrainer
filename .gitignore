@@ -2,7 +2,11 @@
 .env/
 .vscode/
 __pycache__/
+cache_data/
 
 # for test output folder
 output/
 *.txt
+
+# for dataset
+data/

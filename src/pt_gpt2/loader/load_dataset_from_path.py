@@ -77,7 +77,9 @@ def load_dataset_from_path(
     )
 
     # set block_size and pass it as default argument to group_texts
-    block_size = tokenizer.model_max_length if tokenizer.model_max_length != None else dataset_args.block_size
+    # expect internml: block_size = tokenizer.model_max_length if tokenizer.model_max_length != None else dataset_args.block_size
+    # FIXME: internml max_model_length toooo big
+    block_size =  dataset_args.block_size
     group_texts_with_block_size = partial(group_texts, block_size=block_size)
     
     lm_dataset = tokenized_datset.map(
