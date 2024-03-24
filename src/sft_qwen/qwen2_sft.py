@@ -28,6 +28,7 @@ class DataArguments:
     )
     source_length: int = field(default=128)
     target_length: int = field(default=512)
+    enable_history: bool = field(default=False)
 
 
 @dataclass
@@ -137,6 +138,33 @@ def build_source_text(x: str, tokenizer) -> str:
     )
     return text
 
+def build_source_text_with_history(ins_data, history, output, tokenizer: transformers.PreTrainedTokenizer):
+    sources = list() 
+    targets = list()
+
+    for index in range(len(ins_data)):
+        cur_ins_data, cur_history, cur_output = ins_data[index], history[index], output[index]
+
+        messages = [ { "role": "system", "content": "你是活泼可爱的机器人少女ATRI,我是夏生,请你和我自然地聊天." } ]
+        
+        for hist in cur_history:
+            messages.append({"role": "user", "content": hist[0]})
+            sources.append(tokenizer.apply_chat_template(
+                messages, tokenize=False, add_generation_prompt=True
+            ))
+            targets.append(f"{hist[1]}{tokenizer.eos_token}")
+            messages.append({"role": "assistant", "content": hist[1]})
+        
+        messages.append({"role": "user", "content": cur_ins_data})
+        sources.append(tokenizer.apply_chat_template(
+            messages, tokenize=False, add_generation_prompt=True
+        ))
+        targets.append(f"{cur_output}{tokenizer.eos_token}")
+
+    return sources, targets
+
+    
+
 
 def make_train_dataset(
     tokenizer: transformers.PreTrainedTokenizer,
@@ -159,16 +187,19 @@ def make_train_dataset(
 
         len_ = len(ins_data)
 
-        sources = [
-            build_source_text(ins_data[i][: data_args.source_length], tokenizer)
-            for i in range(len_)
-        ]
+        if data_args.enable_history:
+            sources, targets = build_source_text_with_history(ins_data, history, output, tokenizer)
+        else:
+            sources = [
+                build_source_text(ins_data[i][: data_args.source_length], tokenizer)
+                for i in range(len_)
+            ]
 
-        # sources = [i[: data_args.source_length] for i in sources]
-        targets = [
-            f"{example[:data_args.target_length-1]}{tokenizer.eos_token}"
-            for example in output
-        ]
+            # sources = [i[: data_args.source_length] for i in sources]
+            targets = [
+                f"{example[:data_args.target_length-1]}{tokenizer.eos_token}"
+                for example in output
+            ]
 
         input_output = preprocess(sources=sources, targets=targets, tokenizer=tokenizer)
         examples["input_ids"] = input_output["input_ids"]
@@ -179,6 +210,7 @@ def make_train_dataset(
 
     dataset = dataset.map(
         function=generate_sources_targets_p,
+        remove_columns = dataset.column_names,
         batched=True,
         desc="Running tokenizer on train dataset",
         num_proc=40,

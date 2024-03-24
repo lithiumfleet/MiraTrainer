@@ -2,13 +2,14 @@
 pwd=/data/lixubin/MiraTrainer
 rm -rf $pwd/output/*
 
-deepspeed --include localhost:1,2,3,4,5,6 $pwd/src/sft_qwen/examples/zero_nlp/qwen2_sft.py \
+# CUDA_VISIBLE_DEVICES=2 python \
+deepspeed --include localhost:1,2,3,4,5,6 $pwd/src/sft_qwen/qwen2_sft.py \
     --model_name_or_path /data/lixubin/models/Qwen/Qwen1.5-1.8B-Chat \
     --use_lora true \
     --use_deepspeed true \
     --data_path $pwd/data/sft/ \
     --bf16 true \
-    --fp16 true \
+    --fp16 false \
     --output_dir $pwd/output \
     --num_train_epochs 3 \
     --per_device_train_batch_size 4 \
@@ -21,7 +22,8 @@ deepspeed --include localhost:1,2,3,4,5,6 $pwd/src/sft_qwen/examples/zero_nlp/qw
     --learning_rate 4e-4 \
     --logging_steps 10 \
     --tf32 False \
-    --model_max_length 2048
+    --model_max_length 2048 \
+    --enable_history true
 
     # --save_strategy "steps" \
     # --save_steps 10 \ 
