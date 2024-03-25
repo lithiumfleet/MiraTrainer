@@ -6,6 +6,6 @@
 目前的进展主要是学习和复现各个框架的训练方法:
 + [x] pt: gpt2 -> huggingface script clm_run.py
 + [x] sft: Qwen -> zero_nlp script train_Qwen2_sft.py & Qwen official script
-+ [ ] dpo: ?
++ [x] dpo: from zero_nlp and LLaMA-Factory -> (no script...)
 + [ ] rlhf: ?
 + [ ] p-tuning: ?
