@@ -3,7 +3,7 @@ pwd=/data/lixubin/MiraTrainer
 rm -rf $pwd/output/*
 
 # CUDA_VISIBLE_DEVICES=2 python \
-deepspeed --include localhost:1,2,3,4,5,6 $pwd/src/sft_qwen/qwen2_sft.py \
+deepspeed --include localhost:1,2,3,4,5,6 $pwd/examples/sft_qwen/qwen2_sft.py \
     --model_name_or_path /data/lixubin/models/Qwen/Qwen1.5-1.8B-Chat \
     --use_lora true \
     --use_deepspeed true \
