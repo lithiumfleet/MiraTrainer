@@ -4,6 +4,8 @@ from data_utils import get_dataset
 import json
 import os
 
+# https://stackoverflow.com/questions/62691279/how-to-disable-tokenizers-parallelism-true-false-warning
+os.environ["TOKENIZERS_PARALLELISM"] = "false"
 
 @dataclass
 class Config:
@@ -24,11 +26,12 @@ class Task:
             per_device_train_batch_size=1,
             gradient_accumulation_steps=4,
             warmup_steps=2,
-            max_steps=4,
+            max_steps=10,
             learning_rate=2e-4,
             seed=42,
             logging_steps=1,
-            output_dir=self.cfg.output_dir
+            output_dir=self.cfg.output_dir,
+	    dataloader_num_workers=24
         )
 
     # main function

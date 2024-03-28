@@ -10,3 +10,7 @@ output/
 
 # for dataset
 data/
+
+# for scurity
+yes
+yes.pub

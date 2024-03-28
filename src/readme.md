@@ -17,9 +17,9 @@ load_dataset的输出是一个Dataset, 格式如下
 ```json
 {
     "train": {
-        "input_ids":
-        "attention_mask":
-        "target_ids":
+        "input_ids": "Tensor(tokens)",
+        "attention_mask": "Tensor(ones)",
+        "labels": "copy of input_ids"
     }
 }
 ```
