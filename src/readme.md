@@ -7,7 +7,6 @@
 
 每个脚本都有其对应的{filename}_config.json
 
-
 ## Dataset
 
 ### 1.pt
@@ -17,12 +16,51 @@ load_dataset的输出是一个Dataset, 格式如下
 ```json
 {
     "train": {
-        "input_ids": "Tensor(tokens)",
-        "attention_mask": "Tensor(ones)",
+        "input_ids": "tokens",
+        "attention_mask": "ones",
         "labels": "copy of input_ids"
     }
 }
 ```
+
+### 2.sft
+
+数据格式采用 Vicuna格式, 后续可能会添加"tools"等字段.
+```json
+"conversations": [
+    [
+        {
+            "from": "human",
+            "value": "Who are you?"
+        },
+        {
+            "from": "gpt",
+            "value": "I am Vicuna, ..."
+        }
+    ],
+    [
+        {
+            "from": "human",
+            "value": "What can you do?"
+        },
+        {
+            "from": "gpt",
+            "value": "I can chat with you."
+        }
+    ]
+]
+```
+load_dataset的输出同样是Dataset, 格式如下:
+```json
+{
+    "train": {
+        "input_ids": "tokens",
+        "attention_mask": "ones",
+        "target_ids": "[IGNORE_INDEX]*n + tokens"
+    }
+}
+```
+针对长对话, 这里会用最简单的方式: 参考LLaMA-Factory, 先模板化(ChatML或其他), 每次response都会连带上文当成一个example.
 
 ## Logs
 

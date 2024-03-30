@@ -1,0 +1,5 @@
+{
+   "model_path": "/data/lixubin/models/Qwen/Qwen1.5-1.8B-Chat",
+   "dataset_director": "/data/lixubin/MiraTrainer/src/data/sft",
+   "output_dir": "/data/lixubin/MiraTrainer/src/output"
+}

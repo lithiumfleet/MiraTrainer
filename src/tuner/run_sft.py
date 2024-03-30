@@ -1,11 +1,10 @@
-from transformers import AutoModelForCausalLM, AutoTokenizer, Trainer, default_data_collator, TrainingArguments
+from transformers import AutoModelForCausalLM, AutoTokenizer, TrainingArguments, default_data_collator
+from peft import LoraConfig
+from trl import SFTTrainer
 from dataclasses import dataclass
-from data_utils import get_dataset
-import json
-import os
+import os, json
+from sft_data_utils import get_sft_dataset
 
-# https://stackoverflow.com/questions/62691279/how-to-disable-tokenizers-parallelism-true-false-warning
-os.environ["TOKENIZERS_PARALLELISM"] = "false"
 
 @dataclass
 class Config:
@@ -16,11 +15,12 @@ class Config:
             configs = json.load(fp)
         self.__dict__.update(**configs)
 
-class Task:
+
+class SFTTask:
     def __init__(self) -> None:
         self.cfg = Config()
         self.tokenizer = AutoTokenizer.from_pretrained(self.cfg.model_path)
-        self.dataset = get_dataset(self.tokenizer, self.cfg.dataset_director, 1024)
+        self.dataset = get_sft_dataset(self.cfg.dataset_director, self.tokenizer, True) #FIXME: BUG here, need more info about SFTTrainer traindatset format info.
         self.model = AutoModelForCausalLM.from_pretrained(self.cfg.model_path)
         self.training_args = TrainingArguments(
             per_device_train_batch_size=1,
@@ -33,18 +33,26 @@ class Task:
             output_dir=self.cfg.output_dir,
             dataloader_num_workers=24
         )
-
-    # main function
-    def run_pt(self):
-        ## initialize trainer
-        trainer = Trainer(
-            model=self.model,
-            tokenizer=self.tokenizer,
-            train_dataset=self.dataset,
-            data_collator=default_data_collator,
-            args=self.training_args
+        self.lora_config = LoraConfig(
+            r=16,
+            lora_alpha=32,
+            lora_dropout=0.05,
+            bias="none",
+            task_type="CAUSAL_LM",
+            target_modules=["q_proj","v_proj"]
         )
 
+    def run_sft(self):
+        ## initialize trainer
+        trainer = SFTTrainer(
+            model=self.model,
+            tokenizer=self.tokenizer,
+            train_dataset=self.dataset['train'],
+            data_collator=default_data_collator,
+            args=self.training_args,
+            peft_config=self.lora_config,
+            max_seq_length=2048
+        )
         # training
         train_result = trainer.train()
         trainer.save_model()  # Saves the tokenizer too for easy upload
@@ -55,8 +63,8 @@ class Task:
         trainer.log_metrics("train", metrics)
         trainer.save_metrics("train", metrics)
         trainer.save_state()
-            
+
 
 if __name__ == '__main__':
-    task = Task()
-    task.run_pt()
+    task = SFTTask()
+    task.run_sft()
