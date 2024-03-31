@@ -1,24 +1,15 @@
 from transformers import AutoModelForCausalLM, AutoTokenizer, Trainer, default_data_collator, TrainingArguments
-from dataclasses import dataclass
 from data_utils import get_dataset
-import json
 import os
+from script_config import Config
 
 # https://stackoverflow.com/questions/62691279/how-to-disable-tokenizers-parallelism-true-false-warning
 os.environ["TOKENIZERS_PARALLELISM"] = "false"
 
-@dataclass
-class Config:
-    def __init__(self):
-        file_path = __file__[:-3]+'_config.json'
-        assert os.path.isfile(file_path), f"error config file path: {file_path}"
-        with open(file_path, 'r', encoding='utf-8') as fp:
-            configs = json.load(fp)
-        self.__dict__.update(**configs)
 
 class Task:
     def __init__(self) -> None:
-        self.cfg = Config()
+        self.cfg = Config(__file__)
         self.tokenizer = AutoTokenizer.from_pretrained(self.cfg.model_path)
         self.dataset = get_dataset(self.tokenizer, self.cfg.dataset_director, 1024)
         self.model = AutoModelForCausalLM.from_pretrained(self.cfg.model_path)
