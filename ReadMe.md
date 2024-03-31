@@ -9,3 +9,6 @@
 + [x] dpo: from zero_nlp and LLaMA-Factory -> (no script...)
 + [ ] rlhf: ?
 + [ ] p-tuning: ?
+
+其他任务:
++ [ ] 一个造数据,清洗加质检的Pipeline.可能会参考[distilabel](https://github.com/argilla-io/distilabel)
